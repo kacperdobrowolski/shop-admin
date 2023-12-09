@@ -53,3 +53,11 @@
     </div>
   </nav>
 </template>
+
+<script setup lang="ts">
+  import { initDrawers } from 'flowbite';
+
+  onMounted(() => {
+    initDrawers();
+  })
+</script>
