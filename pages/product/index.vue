@@ -118,6 +118,8 @@
 </template>
 
 <script setup lang="ts">
+  const { $alert } = useNuxtApp();
+
   type Product = {
     id: number;
     name: string;
@@ -132,11 +134,6 @@
     currentPage: number;
     perPage: number;
     maxPage: number;
-  };
-
-  type ProductsRequest = {
-    products: Product[];
-    pagination: Pagination;
   };
 
   const pagination = ref<Pagination>({
@@ -170,7 +167,7 @@
   }
 
   const { data: products, refresh } = useAsyncData('products', async (): Promise<Product[]> => {
-    const result: ProductsRequest = await useApiRequest('/api/admin/catalog/product', {
+    const result = await useApiRequest('/api/admin/catalog/product', {
       method: 'get',
       params: {
         page: +pagination.value?.currentPage,
@@ -201,6 +198,9 @@
         }
 
         refresh();
+        $alert.success('Pomyślnie usunięto produkt', {
+          location: 'bottom-right',
+        });
       }
     } catch (error) {
       console.error(error);

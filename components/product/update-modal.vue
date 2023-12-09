@@ -49,6 +49,7 @@
 </template>
 
 <script setup lang="ts">
+  const { $alert } = useNuxtApp();
 
   type Product = {
     id: number;
@@ -91,6 +92,9 @@
 
       updateProductModal.value.closeButton.click();
       emit('product-updated');
+      $alert.success('Pomyślnie zaktualizowano produkt', {
+        location: 'bottom-right',
+      });
     } catch (error) {
       console.error(error);
     }

@@ -14,6 +14,7 @@ export default defineNuxtConfig({
 
   modules: [
     '@nuxtjs/tailwindcss',
+    '@pinia/nuxt',
   ],
 
   runtimeConfig: {
@@ -34,4 +35,10 @@ export default defineNuxtConfig({
       },
     },
   },
+
+  css: ['@/assets/scss/main.scss'],
+
+  plugins: [
+    '@/plugins/alert',
+  ],
 });

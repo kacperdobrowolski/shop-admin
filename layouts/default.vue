@@ -6,6 +6,8 @@
     <main class="min-h-screen p-4 md:ml-64 h-auto pt-20 text-gray-900 dark:text-white">
       <slot></slot>
     </main>
+
+    <AppAlerts />
   </div>
 </template>
 

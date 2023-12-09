@@ -48,6 +48,8 @@
 </template>
 
 <script setup lang="ts">
+  const { $alert } = useNuxtApp();
+
   type CreateProductForm = {
     name: string;
     price: number;
@@ -80,7 +82,10 @@
 
       createProductModal.value.closeButton.click();
       emit('product-created');
-    } catch (error) {
+      $alert.success('Pomyślnie utworzono produkt', {
+        location: 'bottom-right',
+      });
+    } catch (error: any) {
       console.error(error);
     }
   }
