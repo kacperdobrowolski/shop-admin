@@ -59,3 +59,11 @@
     </div>
   </div>
 </template>
+
+<script setup lang="ts">
+  import { initDropdowns } from 'flowbite';
+
+  onMounted(() => {
+    initDropdowns();
+  });
+</script>

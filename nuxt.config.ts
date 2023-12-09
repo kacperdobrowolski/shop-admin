@@ -5,6 +5,10 @@ export default defineNuxtConfig({
       htmlAttrs: {
         class: 'dark',
       },
+
+      meta: [
+        { name: 'theme-color', content: '#4285f4' },
+      ],
     },
   },
 
@@ -24,6 +28,25 @@ export default defineNuxtConfig({
       short_name: 'Shop App',
       description: 'Shop App Admin',
       display: 'standalone',
+      theme_color: '#ffffff',
+      icons: [
+        {
+          src: '144x144.png',
+          sizes: '144x144',
+          type: 'image/png',
+        },
+        {
+          src: '256x256.png',
+          sizes: '256x256',
+          type: 'image/png',
+          purpose: 'maskable',
+        },
+        {
+          src: '512x512.png',
+          sizes: '512x512',
+          type: 'image/png',
+        },
+      ]
     },
 
     client: {
@@ -32,6 +55,7 @@ export default defineNuxtConfig({
 
     workbox: {
       globPatterns: ['_nuxt/builds/**/*.json'],
+      skipWaiting: true,
 
       runtimeCaching: [
         {

@@ -13,39 +13,12 @@
 </template>
 
 <script setup lang="ts">
-  import { 
-    initAccordions, 
-    initCarousels, 
-    initCollapses, 
-    initDials, 
-    initDismisses, 
-    initDrawers, 
-    initDropdowns, 
-    initModals, 
-    initPopovers, 
-    initTabs, 
-    initTooltips,
-  } from 'flowbite';
 
   const { $alert, $pwa } = useNuxtApp();
 
   let offlineInterval: NodeJS.Timeout;
 
   onMounted(() => {
-    // initAccordions();
-    // initCarousels();
-    // initCollapses();
-    // initDials();
-    // initDismisses();
-    // initDrawers();
-    // initDropdowns();
-    // initModals();
-    // initPopovers();
-    // initTabs();
-    // initTooltips();
-
-    $pwa?.install();
-
     window.addEventListener('offline', function() {
       $alert.error('Utracono połączenie z internetem', {
         location: 'bottom-right',
@@ -54,7 +27,6 @@
       let attemps = 9;
 
       offlineInterval = setInterval(() => {
-        $pwa?.updateServiceWorker()
         if (attemps) {
           $alert.error('Utracono połączenie z internetem', {
             location: 'bottom-right',
