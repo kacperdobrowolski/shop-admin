@@ -50,7 +50,7 @@
 
             <tbody>
               <tr
-                v-for="product in products"
+                v-for="product in products?.items"
                 :key="product.id"
                 class="border-b dark:border-gray-700"
               >
@@ -67,7 +67,12 @@
                 </td>
 
                 <td class="px-4 py-3 flex items-center justify-end">
-                  <button :id="`product-${product.id}-dropdown-button`" :data-dropdown-toggle="`product-${product.id}-dropdown`" class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100" type="button">
+                  <button
+                    :id="`product-${product.id}-dropdown-button`"
+                    :data-dropdown-toggle="`product-${product.id}-dropdown`"
+                    class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100"
+                    type="button"
+                  >
                     <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                       <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
                     </svg>
@@ -105,11 +110,11 @@
           </table>
         </div>
 
-        <ProductCreateModal @product-created="refresh" />
+        <ProductCreateModal @product-created="onCreatedProduct" />
         <ProductUpdateModal ref="updateModal" @product-updated="refresh" />
 
         <AppPagination
-          :pagination="pagination"
+          :pagination="products?.pagination"
           @page-changed="onPageChanged"
         />
       </div>
@@ -118,6 +123,11 @@
 </template>
 
 <script setup lang="ts">
+  import { 
+    initDropdowns, 
+    initModals, 
+  } from 'flowbite';
+
   const { $alert } = useNuxtApp();
 
   type Product = {
@@ -135,13 +145,6 @@
     perPage: number;
     maxPage: number;
   };
-
-  const pagination = ref<Pagination>({
-    maxPage: 0,
-    perPage: 1,
-    currentPage: 1,
-    total: 0,
-  });
 
   type Filters = {
     name: string;
@@ -166,24 +169,39 @@
     });
   }
 
-  const { data: products, refresh } = useAsyncData('products', async (): Promise<Product[]> => {
+  type ProductsRequest = {
+    items: Product[],
+    pagination: Pagination,
+  };
+
+  const currentPage = ref<number>(1);
+
+  const { data: products, refresh } = await useAsyncData('products', async (): Promise<ProductsRequest> => {
     const result = await useApiRequest('/api/admin/catalog/product', {
       method: 'get',
       params: {
-        page: +pagination.value?.currentPage,
+        page: currentPage.value,
         ...filters.value,
       },
     });
 
-    pagination.value = result.pagination;
-
-    return result.products;
+    return {
+      items: result.products,
+      pagination: result.pagination,
+    };
   });
 
+  currentPage.value = products.value!.pagination.currentPage;
+
   async function onPageChanged(page: number): Promise<void> {
-    pagination.value.currentPage = page;
+    currentPage.value = page;
     await refresh();
     initDropdowns();
+  }
+
+  async function onCreatedProduct() {
+    await refresh();
+    initFlowbiteComponents();
   }
 
   async function deleteProduct(id: number): Promise<void> {
@@ -193,8 +211,8 @@
           method: 'delete',
         });
         
-        if (products.value?.length === 1 && pagination.value.currentPage > 1) {
-          pagination.value.currentPage--;
+        if (products.value?.items.length === 1 && currentPage.value > 1) {
+          currentPage.value--;
         }
 
         refresh();
@@ -207,32 +225,16 @@
     }
   }
 
-  import { onMounted } from 'vue';
-  import { 
-    initAccordions, 
-    initCarousels, 
-    initCollapses, 
-    initDials, 
-    initDismisses, 
-    initDrawers, 
-    initDropdowns, 
-    initModals, 
-    initPopovers, 
-    initTabs, 
-    initTooltips,
-  } from 'flowbite';
+
+  function initFlowbiteComponents() {
+    initDropdowns();
+    initModals()
+  }
 
   onMounted(() => {
-    initAccordions();
-    initCarousels();
-    initCollapses();
-    initDials();
-    initDismisses();
-    initDrawers();
-    initDropdowns();
-    initModals();
-    initPopovers();
-    initTabs();
-    initTooltips();
+    // TODO
+    setTimeout(() => {
+      initFlowbiteComponents();
+    }, 100);
   });
 </script>

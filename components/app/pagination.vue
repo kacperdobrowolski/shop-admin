@@ -3,7 +3,7 @@
     <div class="inline-flex items-center">
       <button
         class="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-        @click.prevent="changePage(props.pagination.currentPage - 1)"
+        @click.prevent="changePage(props.pagination!.currentPage - 1)"
       >
         <span class="sr-only">Poprzedni</span>
         <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -13,7 +13,7 @@
 
       <button
         class="flex items-center justify-center h-full py-1.5 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-        @click.prevent="changePage(props.pagination.currentPage + 1)"
+        @click.prevent="changePage(props.pagination!.currentPage + 1)"
       >
         <span class="sr-only">Następny</span>
         <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
@@ -22,7 +22,7 @@
       </button>
 
       <span class="block ml-4">
-        Strona {{ props.pagination.currentPage }} z {{ props.pagination.maxPage }} ({{ props.pagination.total }} produktów)
+        Strona {{ props.pagination?.currentPage }} z {{ props.pagination?.maxPage }} ({{ props.pagination?.total }} produktów)
       </span>
     </div>
   </div>
@@ -30,7 +30,7 @@
 
 <script setup lang="ts">
   type Props = {
-    pagination: {
+    pagination?: {
       total: number;
       currentPage: number;
       perPage: number;
@@ -43,7 +43,11 @@
   const emit = defineEmits(['page-changed']);
 
   function changePage(page: number): void {
-    if (page < 1 || page > props.pagination.maxPage) return;
+    if (page < 1 || page > props.pagination!.maxPage) return;
     emit('page-changed', page);
   }
+
+  onMounted(() => {
+    console.log(props);
+  })
 </script>

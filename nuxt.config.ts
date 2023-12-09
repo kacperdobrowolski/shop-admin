@@ -15,7 +15,37 @@ export default defineNuxtConfig({
   modules: [
     '@nuxtjs/tailwindcss',
     '@pinia/nuxt',
+    '@vite-pwa/nuxt',
   ],
+
+  pwa: {
+    manifest: {
+      name: 'Shop App',
+      short_name: 'Shop App',
+      description: 'Shop App Admin',
+      display: 'standalone',
+    },
+
+    client: {
+      installPrompt: true,
+    },
+
+    workbox: {
+      globPatterns: ['_nuxt/builds/**/*.json'],
+
+      runtimeCaching: [
+        {
+          urlPattern: new RegExp('http://127.0.0.1*'),
+          handler: 'NetworkFirst',
+        },
+      ],
+    },
+
+    devOptions: {
+      enabled: true,
+      type: 'module',
+    },
+  },
 
   runtimeConfig: {
     baseUrl: process.env.BASE_URL,
