@@ -1,24 +1,41 @@
 <template>
-  <AppModal id="createProductModal">
+  <AppModal id="createProductModal" ref="createProductModal">
     <template #header>
       Dodaj produkt
     </template>
 
-    <form>
+    <form @submit.prevent="createProduct">
       <div class="grid gap-4 mb-4 sm:grid-cols-2">
         <div>
           <label for="name" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Nazwa</label>
-          <input type="text" name="name" id="name" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Nazwa produktu">
+          <input
+            type="text"
+            name="name"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            placeholder="Nazwa produktu"
+            v-model="form.name"
+          />
         </div>
 
         <div>
           <label for="brand" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Cena</label>
-          <input type="text" name="brand" id="brand" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Cena produktu">
+          <input
+            type="number"
+            name="brand"
+            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            placeholder="Cena produktu"
+            v-model="form.price"
+          />
         </div>
 
         <div class="sm:col-span-2">
           <label for="description" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Opis</label>
-          <textarea id="description" rows="4" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Opis produktu"></textarea>                    
+          <textarea
+            rows="4"
+            class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+            placeholder="Opis produktu"
+            v-model="form.description"
+          ></textarea>                    
         </div>
       </div>
 
@@ -29,3 +46,42 @@
     </form>
   </AppModal>
 </template>
+
+<script setup lang="ts">
+  type CreateProductForm = {
+    name: string;
+    price: number;
+    description: string;
+  };
+
+  const form = ref<CreateProductForm>({
+    name: '',
+    price: 0,
+    description: '',
+  });
+
+  const emit = defineEmits(['product-created']);
+  const createProductModal = ref<any>();
+
+  async function createProduct() {
+    try {
+      await useApiRequest('/api/admin/catalog/product', {
+        method: 'post',
+        body: {
+          ...form.value,
+        },
+      });
+
+      form.value = {
+        name: '',
+        price: 0,
+        description: '',
+      };
+
+      createProductModal.value.closeButton.click();
+      emit('product-created');
+    } catch (error) {
+      console.error(error);
+    }
+  }
+</script>

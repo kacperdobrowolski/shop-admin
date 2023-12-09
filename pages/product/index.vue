@@ -4,7 +4,7 @@
       <div class="bg-white dark:bg-gray-800 relative shadow-md sm:rounded-lg overflow-hidden">
         <div class="flex flex-col md:flex-row items-center justify-between space-y-3 md:space-y-0 md:space-x-4 p-4">
           <div class="w-full md:w-1/2">
-            <form class="flex items-center">
+            <form class="flex items-center" @submit.prevent="onSearch">
               <label for="simple-search" class="sr-only">Wyszukaj</label>
 
               <div class="relative w-full">
@@ -14,7 +14,12 @@
                   </svg>
                 </div>
 
-                <input type="text" id="simple-search" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Search">
+                <input
+                  type="text"
+                  class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full pl-10 p-2 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+                  placeholder="Wpisz nazwę produktu"
+                  v-model="filters.name"
+                />
               </div>
             </form>
           </div>
@@ -44,29 +49,54 @@
             </thead>
 
             <tbody>
-              <tr class="border-b dark:border-gray-700">
-                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">Test</th>
-                <td class="px-4 py-3">1000 zł</td>
-                <td class="px-4 py-3">faafafafdsafdsaffads</td>
+              <tr
+                v-for="product in products"
+                :key="product.id"
+                class="border-b dark:border-gray-700"
+              >
+                <th scope="row" class="px-4 py-3 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+                  {{ product.name }}
+                </th>
+
+                <td class="px-4 py-3">
+                  {{ product.price }} zł
+                </td>
+
+                <td class="px-4 py-3">
+                  {{ product.description }}
+                </td>
 
                 <td class="px-4 py-3 flex items-center justify-end">
-                  <button id="apple-imac-27-dropdown-button" data-dropdown-toggle="apple-imac-27-dropdown" class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100" type="button">
+                  <button :id="`product-${product.id}-dropdown-button`" :data-dropdown-toggle="`product-${product.id}-dropdown`" class="inline-flex items-center p-0.5 text-sm font-medium text-center text-gray-500 hover:text-gray-800 rounded-lg focus:outline-none dark:text-gray-400 dark:hover:text-gray-100" type="button">
                     <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
                       <path d="M6 10a2 2 0 11-4 0 2 2 0 014 0zM12 10a2 2 0 11-4 0 2 2 0 014 0zM16 12a2 2 0 100-4 2 2 0 000 4z" />
                     </svg>
                   </button>
 
-                  <div id="apple-imac-27-dropdown" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
-                    <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" aria-labelledby="apple-imac-27-dropdown-button">
-                      <li>
+                  <div :id="`product-${product.id}-dropdown`" class="hidden z-10 w-44 bg-white rounded divide-y divide-gray-100 shadow dark:bg-gray-700 dark:divide-gray-600">
+                    <ul class="py-1 text-sm text-gray-700 dark:text-gray-200" :aria-labelledby="`product-${product.id}-dropdown-button`">
+                      <!-- <li>
                         <a href="#" class="block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white">Pokaż</a>
-                      </li>
+                      </li> -->
                       <li>
-                        <button type="button" class="w-full text-left	block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white" data-modal-target="updateProductModal" data-modal-toggle="updateProductModal">Edytuj</button>
+                        <button
+                          type="button"
+                          class="w-full text-left	block py-2 px-4 hover:bg-gray-100 dark:hover:bg-gray-600 dark:hover:text-white"
+                          data-modal-target="updateProductModal"
+                          data-modal-toggle="updateProductModal"
+                          @click.prevent="onOpenUpdateModal(product)"
+                        >
+                          Edytuj
+                        </button>
                       </li>
                     </ul>
                     <div class="py-1">
-                      <a href="#" class="block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white">Usuń</a>
+                      <button
+                        class=" w-full text-left block py-2 px-4 text-sm text-gray-700 hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-200 dark:hover:text-white"
+                        @click.prevent="deleteProduct(product.id)"
+                      >
+                        Usuń
+                      </button>
                     </div>
                   </div>
                 </td>
@@ -75,56 +105,134 @@
           </table>
         </div>
 
-        <ProductCreateModal />
-        <ProductUpdateModal />
+        <ProductCreateModal @product-created="refresh" />
+        <ProductUpdateModal ref="updateModal" @product-updated="refresh" />
 
-        <!-- Pagination -->
-        <nav class="flex flex-col md:flex-row justify-between items-start md:items-center space-y-3 md:space-y-0 p-4 mt-16" aria-label="Table navigation">
-          <span class="text-sm font-normal text-gray-500 dark:text-gray-400">
-            Pokazano
-            <span class="font-semibold text-gray-900 dark:text-white">1-10</span>
-            z
-            <span class="font-semibold text-gray-900 dark:text-white">1000</span>
-          </span>
-          <ul class="inline-flex items-stretch -space-x-px">
-            <li>
-              <a href="#" class="flex items-center justify-center h-full py-1.5 px-3 ml-0 text-gray-500 bg-white rounded-l-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                <span class="sr-only">Poprzedni</span>
-                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                </svg>
-              </a>
-            </li>
-            <li>
-              <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">1</a>
-            </li>
-            <li>
-              <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">2</a>
-            </li>
-            <li>
-              <a href="#" aria-current="page" class="flex items-center justify-center text-sm z-10 py-2 px-3 leading-tight text-primary-600 bg-primary-50 border border-primary-300 hover:bg-primary-100 hover:text-primary-700 dark:border-gray-700 dark:bg-gray-700 dark:text-white">3</a>
-            </li>
-            <li>
-              <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">...</a>
-            </li>
-            <li>
-              <a href="#" class="flex items-center justify-center text-sm py-2 px-3 leading-tight text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">100</a>
-            </li>
-            <li>
-              <a href="#" class="flex items-center justify-center h-full py-1.5 px-3 leading-tight text-gray-500 bg-white rounded-r-lg border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-                <span class="sr-only">Następny</span>
-                <svg class="w-5 h-5" aria-hidden="true" fill="currentColor" viewbox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                </svg>
-              </a>
-            </li>
-          </ul>
-        </nav>
+        <AppPagination
+          :pagination="pagination"
+          @page-changed="onPageChanged"
+        />
       </div>
     </div>
   </section>
 </template>
 
 <script setup lang="ts">
+  type Product = {
+    id: number;
+    name: string;
+    price: number;
+    description: string;
+    createdAt: Date;
+    updatedAt: Date;
+  };
 
+  type Pagination = {
+    total: number;
+    currentPage: number;
+    perPage: number;
+    maxPage: number;
+  };
+
+  type ProductsRequest = {
+    products: Product[];
+    pagination: Pagination;
+  };
+
+  const pagination = ref<Pagination>({
+    maxPage: 0,
+    perPage: 1,
+    currentPage: 1,
+    total: 0,
+  });
+
+  type Filters = {
+    name: string;
+  };
+
+  const filters = ref<Filters>({
+    name: '',
+  });
+
+  const updateModal = ref<any>();
+
+  function onSearch() {
+    refresh();
+  }
+
+  function onOpenUpdateModal(product: Product): void {
+    updateModal.value.setProduct({
+      id: product.id,
+      name: product.name,
+      price: product.price,
+      description: product.description,
+    });
+  }
+
+  const { data: products, refresh } = useAsyncData('products', async (): Promise<Product[]> => {
+    const result: ProductsRequest = await useApiRequest('/api/admin/catalog/product', {
+      method: 'get',
+      params: {
+        page: +pagination.value?.currentPage,
+        ...filters.value,
+      },
+    });
+
+    pagination.value = result.pagination;
+
+    return result.products;
+  });
+
+  async function onPageChanged(page: number): Promise<void> {
+    pagination.value.currentPage = page;
+    await refresh();
+    initDropdowns();
+  }
+
+  async function deleteProduct(id: number): Promise<void> {
+    try {
+      if (confirm('Jesteś pewien, że chcesz usunąć ten produkt?')) {
+        await useApiRequest(`/api/admin/catalog/product/${id}`, {
+          method: 'delete',
+        });
+        
+        if (products.value?.length === 1 && pagination.value.currentPage > 1) {
+          pagination.value.currentPage--;
+        }
+
+        refresh();
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  }
+
+  import { onMounted } from 'vue';
+  import { 
+    initAccordions, 
+    initCarousels, 
+    initCollapses, 
+    initDials, 
+    initDismisses, 
+    initDrawers, 
+    initDropdowns, 
+    initModals, 
+    initPopovers, 
+    initTabs, 
+    initTooltips,
+  } from 'flowbite';
+
+  onMounted(() => {
+    initAccordions();
+    initCarousels();
+    initCollapses();
+    initDials();
+    initDismisses();
+    initDrawers();
+    initDropdowns();
+    initModals();
+    initPopovers();
+    initTabs();
+    initTooltips();
+  });
 </script>
