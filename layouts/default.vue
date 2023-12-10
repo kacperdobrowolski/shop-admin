@@ -35,7 +35,7 @@
         } else {
           clearInterval(offlineInterval);
         }
-      }, 5000);
+      }, 15000);
     });
 
     window.addEventListener('online', function() {
